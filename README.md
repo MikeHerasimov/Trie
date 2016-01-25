@@ -66,6 +66,10 @@ Number of nodes in ArrayDAWG is equal or smaller than number of nodes in LinkedD
 
 Version 2.0.0
 
+Was introduced changes in project, such as:
+* tagged class Trie from version 1.0.0 was splitted to hierarchy of classes
+* ArrayTrie realization with respective ArrayDAWG was added
+
 ### Instalation
 
 To use Trie, developed by me you need to install Trove library to your project first
