@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.mikeherasimov</groupId>
+    <artifactId>trie</artifactId>
+    <version>0.2</version>
+    <packaging>jar</packaging>
+
+    <name>trie</name>
+    <url>https://github.com/MikeHerasimov/Trie</url>
+
+    <properties>
+        <project.build.javac>1.7</project.build.javac>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.target>${project.build.javac}</maven.compiler.target>
+        <maven.compiler.source>${project.build.javac}</maven.compiler.source>
+
+        <dep.trove4j.ver>3.0.3</dep.trove4j.ver>
+        <dep.test.junit.ver>4.12</dep.test.junit.ver>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>${dep.trove4j.ver}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${dep.test.junit.ver}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

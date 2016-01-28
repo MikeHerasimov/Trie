@@ -71,9 +71,17 @@ Was introduced changes in project, such as:
 * ArrayTrie realization with respective ArrayDAWG was added
 
 ### Instalation
-
-To use Trie, developed by me you need to install Trove library to your project first
-and then copy *trie* package from my project to yours.
+##### Maven projects
+To use Trie in your project, build and install Trie artifact to local repository with Maven ```mvn clean install``` and add dependency in your project:
+```
+<dependency>
+  <groupId>com.github.mikeherasimov</groupId>
+  <artifactId>trie</artifactId>
+  <version>0.2</version>
+</dependency>
+```
+##### Non Maven projects
+Build Trie with Maven 3 ```mvn clean package``` and attach ```target/trie-0.2.jar``` lib to your project 
 
 Have fun!
 
