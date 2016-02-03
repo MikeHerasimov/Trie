@@ -1,11 +1,16 @@
 package com.github.mikeherasimov.trie.test;
 
-import com.github.mikeherasimov.trie.ArrayTrie;
+import com.github.mikeherasimov.trie.array.ArrayTrie;
 import com.github.mikeherasimov.trie.DAWG;
 import com.github.mikeherasimov.trie.Trie;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -85,5 +90,35 @@ public class ArrayTrieTest {
             containsAllWords &= dawg.contains(item);
         }
         assertTrue(containsAllWords);
+    }
+
+    @Test
+    public void testSerializationAndDeserialization() throws Exception {
+        ArrayTrie trie = new ArrayTrie("абвгґдеєжзиіїйклмнопрстуфхцчшщьюя");
+        String[] words = {"бар", "барабан", "баран", "балон", "бал", "балка", "батон"};
+        for (String item : words){
+            trie.add(item);
+        }
+
+        FileOutputStream fos = new FileOutputStream("testArray.txt");
+        ObjectOutputStream out = new ObjectOutputStream(fos);
+        trie.writeExternal(out);
+        out.flush();
+        out.close();
+        fos.close();
+
+        FileInputStream fis = new FileInputStream("testArray.txt");
+        ObjectInputStream in = new ObjectInputStream(fis);
+        ArrayTrie copy = new ArrayTrie();
+        copy.readExternal(in);
+        in.close();
+        fis.close();
+
+        boolean containsAllWords = true;
+        for (String item : words){
+            containsAllWords &= copy.contains(item);
+        }
+        assertTrue(containsAllWords);
+        assertTrue(copy.equals(trie));
     }
 }

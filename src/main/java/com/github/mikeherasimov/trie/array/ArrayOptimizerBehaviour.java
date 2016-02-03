@@ -1,6 +1,8 @@
-package com.github.mikeherasimov.trie;
+package com.github.mikeherasimov.trie.array;
 
-final class ArrayOptimizerBehaviour implements OptimizerBehaviour<ArrayNode>{
+import com.github.mikeherasimov.trie.OptimizerBehaviour;
+
+final class ArrayOptimizerBehaviour implements OptimizerBehaviour<ArrayNode> {
     public static final ArrayOptimizerBehaviour INSTANCE = new ArrayOptimizerBehaviour();
 
     private ArrayOptimizerBehaviour(){

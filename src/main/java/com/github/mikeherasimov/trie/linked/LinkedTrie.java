@@ -1,6 +1,12 @@
-package com.github.mikeherasimov.trie;
+package com.github.mikeherasimov.trie.linked;
 
+import com.github.mikeherasimov.trie.Optimizer;
+import com.github.mikeherasimov.trie.Trie;
+import gnu.trove.list.linked.TCharLinkedList;
 import gnu.trove.list.linked.TIntLinkedList;
+
+import java.io.*;
+
 
 /**
  * LinkedTrie is one of realization of Trie interface.
@@ -8,7 +14,7 @@ import gnu.trove.list.linked.TIntLinkedList;
  * LinkedTrie uses less memory then ArrayTrie, but it algorithms has some overhead.
  * Also it can not be fully optimized to DAWG.
  */
-public final class LinkedTrie implements Trie{
+public final class LinkedTrie implements Trie, Externalizable{
 
     private int size;
     private LinkedNode root;
@@ -76,12 +82,12 @@ public final class LinkedTrie implements Trie{
      * @return  <code>DAWG</code> object
      */
     @Override
-    public DAWG toDAWG() {
+    public LinkedDAWG toDAWG() {
         LinkedTrie copy = new LinkedTrie(this);
         return toDAWG(copy);
     }
 
-    static DAWG toDAWG(LinkedTrie trie){
+    static LinkedDAWG toDAWG(LinkedTrie trie){
         int nodeCount = LinkedOptimizerBehaviour.INSTANCE.countNodes(trie.root);
         LinkedNode[] nodes = new LinkedNode[nodeCount];
         int[] ancestors = new int[nodeCount];
@@ -202,5 +208,55 @@ public final class LinkedTrie implements Trie{
         if(current.getBrother() != null){
             getInfo(nodes, ancestors, leafs, current.getBrother(), anc);
         }
+    }
+
+    private void preorderSerialize(TCharLinkedList list, LinkedNode current){
+        if(current == null){
+            list.add(')');
+        } else {
+            list.add(current.getLetter());
+            if(current.getEOW()){
+                list.add('*');
+            }
+            preorderSerialize(list, current.getChild());
+            preorderSerialize(list, current.getBrother());
+        }
+    }
+
+    private LinkedNode preorderDeserialize(char[] sequence){
+        char letter = sequence[++recursiveCallsCount];
+        if(letter == ')'){
+            return null;
+        }
+        boolean EOW = false;
+        if(sequence[recursiveCallsCount + 1] == '*'){
+            recursiveCallsCount++;
+            EOW = true;
+        }
+
+        LinkedNode root = new LinkedNode(letter, EOW);
+        root.setChild(preorderDeserialize(sequence));
+        root.setBrother(preorderDeserialize(sequence));
+        return root;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        TCharLinkedList list = new TCharLinkedList();
+        preorderSerialize(list, root);
+
+        out.writeInt(size);
+        out.writeUTF(alphabet);
+        out.writeObject(list.toArray());
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        this.size = in.readInt();
+        this.alphabet = in.readUTF();
+
+        char[] sequence = (char[]) in.readObject();
+        this.root = preorderDeserialize(sequence);
+        recursiveCallsCount = -1;
     }
 }

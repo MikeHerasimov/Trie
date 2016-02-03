@@ -1,6 +1,6 @@
 package com.github.mikeherasimov.trie.test;
 
-import com.github.mikeherasimov.trie.LinkedDAWG;
+import com.github.mikeherasimov.trie.linked.LinkedDAWG;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

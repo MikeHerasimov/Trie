@@ -1,9 +1,11 @@
-package com.github.mikeherasimov.trie;
+package com.github.mikeherasimov.trie.array;
+
+import com.github.mikeherasimov.trie.DAWG;
 
 /**
  * ArrayDAWG represents optimized ArrayTrie data-structure
  */
-public final class ArrayDAWG implements DAWG{
+public final class ArrayDAWG implements DAWG {
     private ArrayTrie trie;
 
     ArrayDAWG(ArrayTrie trie){

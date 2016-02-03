@@ -1,8 +1,10 @@
-package com.github.mikeherasimov.trie;
+package com.github.mikeherasimov.trie.linked;
+
+import com.github.mikeherasimov.trie.Node;
 
 import java.util.Objects;
 
-final class LinkedNode implements Node{
+final class LinkedNode implements Node {
 	
 	private boolean EOW;
 	private char letter;

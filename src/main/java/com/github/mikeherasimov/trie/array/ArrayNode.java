@@ -1,8 +1,10 @@
-package com.github.mikeherasimov.trie;
+package com.github.mikeherasimov.trie.array;
+
+import com.github.mikeherasimov.trie.Node;
 
 import java.util.Arrays;
 
-final class ArrayNode implements Node{
+final class ArrayNode implements Node {
 
     private boolean EOW;
     private char letter;

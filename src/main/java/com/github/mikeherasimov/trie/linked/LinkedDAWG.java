@@ -1,9 +1,11 @@
-package com.github.mikeherasimov.trie;
+package com.github.mikeherasimov.trie.linked;
+
+import com.github.mikeherasimov.trie.DAWG;
 
 /**
  * LinkedDAWG represents optimized LinkedTrie data-structure.
  */
-public final class LinkedDAWG implements DAWG{
+public final class LinkedDAWG implements DAWG {
     private LinkedTrie trie;
 
     LinkedDAWG(LinkedTrie trie){

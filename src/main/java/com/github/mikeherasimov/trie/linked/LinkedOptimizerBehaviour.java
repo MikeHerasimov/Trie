@@ -1,6 +1,8 @@
-package com.github.mikeherasimov.trie;
+package com.github.mikeherasimov.trie.linked;
 
-final class LinkedOptimizerBehaviour implements OptimizerBehaviour<LinkedNode>{
+import com.github.mikeherasimov.trie.OptimizerBehaviour;
+
+final class LinkedOptimizerBehaviour implements OptimizerBehaviour<LinkedNode> {
     public static final LinkedOptimizerBehaviour INSTANCE = new LinkedOptimizerBehaviour();
 
     private LinkedOptimizerBehaviour(){

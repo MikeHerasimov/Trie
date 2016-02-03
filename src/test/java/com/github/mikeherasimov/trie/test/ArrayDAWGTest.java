@@ -1,6 +1,6 @@
 package com.github.mikeherasimov.trie.test;
 
-import com.github.mikeherasimov.trie.ArrayDAWG;
+import com.github.mikeherasimov.trie.array.ArrayDAWG;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
