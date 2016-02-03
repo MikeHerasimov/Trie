@@ -64,6 +64,12 @@ Number of nodes in ArrayDAWG is equal or smaller than number of nodes in LinkedD
 
 ### Version
 
+Version 2.1.0
+
+Was introduced changes in project, such as:
+* all classes relevant to ArrayTrie were placed in *array* package and the same was did for classes, which are relevant to LinkedTrie, so they migrated to *linked* package
+* Externalizable was implemented for ArrayTire and LinkedTrie classes
+
 Version 2.0.0
 
 Was introduced changes in project, such as:
