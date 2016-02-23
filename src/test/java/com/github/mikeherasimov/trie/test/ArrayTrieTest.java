@@ -1,5 +1,6 @@
 package com.github.mikeherasimov.trie.test;
 
+import com.github.mikeherasimov.trie.CommonAlphabets;
 import com.github.mikeherasimov.trie.array.ArrayTrie;
 import com.github.mikeherasimov.trie.DAWG;
 import com.github.mikeherasimov.trie.Trie;
@@ -20,7 +21,7 @@ public class ArrayTrieTest {
 
     @Before
     public void setUp() throws Exception {
-        trie = new ArrayTrie();
+        trie = new ArrayTrie(CommonAlphabets.ENG);
         trie.add("war");
     }
 
@@ -66,6 +67,12 @@ public class ArrayTrieTest {
     }
 
     @Test
+    public void testIsPrefix() throws Exception {
+        assertTrue(trie.isPrefix("wa"));
+        assertFalse(trie.isPrefix("was"));
+    }
+
+    @Test
     public void testSize() throws Exception {
         trie.add("war");
         assertTrue(trie.size() == 1);
@@ -78,7 +85,7 @@ public class ArrayTrieTest {
 
     @Test
     public void testToDAWG() {
-        Trie trie = new ArrayTrie("абвгґдеєжзиіїйклмнопрстуфхцчшщьюя");
+        Trie trie = new ArrayTrie(CommonAlphabets.UA);
         String[] words = {"бар", "барабан", "баран", "балон", "бал", "балка", "батон"};
         for (String item : words){
             trie.add(item);
@@ -94,7 +101,7 @@ public class ArrayTrieTest {
 
     @Test
     public void testSerializationAndDeserialization() throws Exception {
-        ArrayTrie trie = new ArrayTrie("абвгґдеєжзиіїйклмнопрстуфхцчшщьюя");
+        ArrayTrie trie = new ArrayTrie(CommonAlphabets.UA);
         String[] words = {"бар", "барабан", "баран", "балон", "бал", "балка", "батон"};
         for (String item : words){
             trie.add(item);
@@ -109,7 +116,7 @@ public class ArrayTrieTest {
 
         FileInputStream fis = new FileInputStream("testArray.txt");
         ObjectInputStream in = new ObjectInputStream(fis);
-        ArrayTrie copy = new ArrayTrie();
+        ArrayTrie copy = new ArrayTrie(CommonAlphabets.UA);
         copy.readExternal(in);
         in.close();
         fis.close();

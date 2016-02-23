@@ -1,5 +1,6 @@
 package com.github.mikeherasimov.trie.array;
 
+import com.github.mikeherasimov.trie.Alphabet;
 import com.github.mikeherasimov.trie.Optimizer;
 import com.github.mikeherasimov.trie.Trie;
 import gnu.trove.list.linked.TCharLinkedList;
@@ -9,6 +10,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 
 /**
  * ArrayTrie is one of realization of Trie interface.
@@ -20,14 +22,7 @@ public final class ArrayTrie implements Trie, Externalizable{
 
     private int size;
     private ArrayNode root;
-    private String alphabet = "abcdefghijklmnopqrstuvwxyz";
-
-    /**
-     * Returns new ArrayTrie object, supported by english lowercase alphabet.
-     */
-    public ArrayTrie() {
-        root = new ArrayNode(alphabet.length());
-    }
+    private char[] alphabet;
 
     /**
      * Returns new ArrayTrie object, supported by specified alphabet.
@@ -35,8 +30,18 @@ public final class ArrayTrie implements Trie, Externalizable{
      * @param alphabet  specified alphabet
      */
     public ArrayTrie(String alphabet) {
-        this.alphabet = alphabet;
+        this.alphabet = alphabet.toCharArray();
+        Arrays.sort(this.alphabet);
         root = new ArrayNode(alphabet.length());
+    }
+
+    /**
+     * Returns new ArrayTrie object, supported by specified Alphabet`s instance.
+     *
+     * @param alphabet  specified <code>Alphabet</code>`s instance
+     */
+    public ArrayTrie(Alphabet alphabet) {
+        this(alphabet.characters());
     }
 
     /**
@@ -108,7 +113,7 @@ public final class ArrayTrie implements Trie, Externalizable{
     @Override
     public void clear() {
         size = 0;
-        root = new ArrayNode(alphabet.length());
+        root = new ArrayNode(alphabet.length);
     }
 
     /**
@@ -121,20 +126,35 @@ public final class ArrayTrie implements Trie, Externalizable{
      */
     @Override
     public boolean contains(String word) throws IllegalArgumentException{
-        int[] pos = inspectWord(word);
+        ArrayNode lastNode = searchNodeBySequence(word);
+        return lastNode != null && lastNode.getEOW();
+    }
+
+    /**
+     * Returns true if ArrayTrie contains specified prefix
+     *
+     * @param prefix                     prefix whose presence in this <code>ArrayTrie</code> is to be tested
+     * @return                           <code>true</code> if <code>ArrayTrie</code> contains specified prefix
+     * @throws IllegalArgumentException  if at least one letter of word isn't supported by
+     *                                   alphabet of this <code>ArrayTrie</code>
+     */
+    @Override
+    public boolean isPrefix(String prefix) {
+        return searchNodeBySequence(prefix) != null;
+    }
+
+    private ArrayNode searchNodeBySequence(String sequence){
+        int[] pos = inspectWord(sequence);
 
         ArrayNode current = root;
-        for (int i = 0, dest = word.length()-1; i < word.length(); i++){
+        for (int i = 0; i < sequence.length(); i++){
             ArrayNode child = current.getChild(pos[i]);
             if (child == null) {
-                return false;
-            }
-            if (i == dest && !child.getEOW()) {
-                return false;
+                return null;
             }
             current = child;
         }
-        return true;
+        return current;
     }
 
     @Override
@@ -142,10 +162,10 @@ public final class ArrayTrie implements Trie, Externalizable{
         return size;
     }
 
-    private int[] inspectWord(String word) throws IllegalArgumentException{
+    private int[] inspectWord(String word) {
         int[] array = new int[word.length()];
         for (int i = 0; i < word.length(); i++){
-            int index = alphabet.indexOf(word.charAt(i));
+            int index = Arrays.binarySearch(alphabet, word.charAt(i));
             if(index < 0){
                 throw new IllegalArgumentException("At least one letter of word is not supported by current alphabet");
             } else {
@@ -168,7 +188,7 @@ public final class ArrayTrie implements Trie, Externalizable{
     }
 
     private ArrayNode createAndAttachNode(ArrayNode ancestor, int pos, char letter, boolean EOW) {
-        ArrayNode node = new ArrayNode(letter, EOW, alphabet.length());
+        ArrayNode node = new ArrayNode(letter, EOW, alphabet.length);
         ancestor.addChild(node, pos);
         return node;
     }
@@ -187,7 +207,7 @@ public final class ArrayTrie implements Trie, Externalizable{
         if(!(obj instanceof ArrayTrie)) return false;
         ArrayTrie trie = (ArrayTrie) obj;
         return size == trie.size &&
-                alphabet.equals(trie.alphabet) && root.equals(trie.root);
+                Arrays.equals(alphabet, trie.alphabet) && root.equals(trie.root);
     }
 
     private static int recursiveCallsCount = -1;
@@ -221,7 +241,7 @@ public final class ArrayTrie implements Trie, Externalizable{
         }
 
         int i = 0;
-        int lengthOfAlphabet = alphabet.length();
+        int lengthOfAlphabet = alphabet.length;
         while (i < lengthOfAlphabet && current.getChild(i) == null){
             i++;
         }
@@ -264,17 +284,17 @@ public final class ArrayTrie implements Trie, Externalizable{
         preorderSerialize(list, root);
 
         out.writeInt(size);
-        out.writeUTF(alphabet);
+        out.writeObject(alphabet);
         out.writeObject(list.toArray());
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.size = in.readInt();
-        this.alphabet = in.readUTF();
+        this.alphabet = (char[]) in.readObject();
 
         char[] sequence = (char[]) in.readObject();
-        this.root = preorderDeserialize(sequence, alphabet.length());
+        this.root = preorderDeserialize(sequence, alphabet.length);
         recursiveCallsCount = -1;
     }
 }

@@ -1,5 +1,6 @@
 package com.github.mikeherasimov.trie.array;
 
+import com.github.mikeherasimov.trie.Alphabet;
 import com.github.mikeherasimov.trie.DAWG;
 
 /**
@@ -19,18 +20,20 @@ public final class ArrayDAWG implements DAWG {
         private ArrayTrie trie;
 
         /**
-         * Returns Builder object
-         */
-        public Builder(){
-            trie = new ArrayTrie();
-        }
-
-        /**
          * Returns Builder object, supported by specified alphabet
          *
          * @param alphabet  specified alphabet
          */
         public Builder(String alphabet){
+            trie = new ArrayTrie(alphabet);
+        }
+
+        /**
+         * Returns new Builder object, supported by specified Alphabet`s instance.
+         *
+         * @param alphabet  specified <code>Alphabet</code>`s instance
+         */
+        public Builder(Alphabet alphabet){
             trie = new ArrayTrie(alphabet);
         }
 
@@ -53,15 +56,18 @@ public final class ArrayDAWG implements DAWG {
          * @return  respective <code>ArrayDAWG</code> object
          */
         public ArrayDAWG build(){
-            ArrayDAWG arrayDAWG = (ArrayDAWG) ArrayTrie.toDAWG(trie);
-            trie = null;
-            return arrayDAWG;
+            return trie.toDAWG();
         }
     }
 
     @Override
     public boolean contains(String word) {
         return trie.contains(word);
+    }
+
+    @Override
+    public boolean isPrefix(String prefix) {
+        return trie.isPrefix(prefix);
     }
 
     @Override

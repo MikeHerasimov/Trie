@@ -1,5 +1,7 @@
 package com.github.mikeherasimov.trie.test;
 
+import com.github.mikeherasimov.trie.Alphabet;
+import com.github.mikeherasimov.trie.CommonAlphabets;
 import com.github.mikeherasimov.trie.DAWG;
 import com.github.mikeherasimov.trie.linked.LinkedTrie;
 import com.github.mikeherasimov.trie.Trie;
@@ -29,13 +31,17 @@ public class LinkedTrieTest {
 
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test
     public void testAdd() throws Exception {
-        trie.add("landscape");
+        /*trie.add("landscape");
         trie.add("land");
         trie.add("war");
         assertTrue(trie.size() == 3);
-        trie.add("wa*");
+        trie.add("wa*");*/
+
+        Trie testTrie = new LinkedTrie(CommonAlphabets.ENG);
+        testTrie.add("*");
+
     }
 
     @Test
@@ -66,6 +72,12 @@ public class LinkedTrieTest {
     }
 
     @Test
+    public void testIsPrefix() throws Exception {
+        assertTrue(trie.isPrefix("wa"));
+        assertFalse(trie.isPrefix("was"));
+    }
+
+    @Test
     public void testSize() throws Exception {
         trie.add("war");
         assertTrue(trie.size() == 1);
@@ -78,7 +90,7 @@ public class LinkedTrieTest {
 
     @Test
     public void testToDAWG() {
-        Trie trie = new LinkedTrie("абвгґдеєжзиіїйклмнопрстуфхцчшщьюя");
+        Trie trie = new LinkedTrie();
         String[] words = {"бар", "барабан", "баран", "балон", "бал", "балка", "батон"};
         for (String item : words){
             trie.add(item);
@@ -94,7 +106,7 @@ public class LinkedTrieTest {
 
     @Test
     public void testSerializationAndDeserialization() throws Exception {
-        LinkedTrie trie = new LinkedTrie("абвгґдеєжзиіїйклмнопрстуфхцчшщьюя");
+        LinkedTrie trie = new LinkedTrie();
         String[] words = {"бар", "барабан", "баран", "балон", "бал", "балка", "батон"};
         for (String item : words){
             trie.add(item);

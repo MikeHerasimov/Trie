@@ -1,5 +1,6 @@
 package com.github.mikeherasimov.trie.test;
 
+import com.github.mikeherasimov.trie.CommonAlphabets;
 import com.github.mikeherasimov.trie.array.ArrayDAWG;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ public class ArrayDAWGTest {
 
     @Test
     public void testBuilder(){
-        ArrayDAWG arrayDAWG = new ArrayDAWG.Builder()
+        ArrayDAWG arrayDAWG = new ArrayDAWG.Builder(CommonAlphabets.ENG)
                 .put("troll")
                 .put("wall")
                 .build();

@@ -15,6 +15,14 @@ public interface WordGraph {
     boolean contains(String word);
 
     /**
+     * Returns true if WordGraph contains specified prefix
+     *
+     * @param prefix  word whose presence in this <code>WordGraph</code> is to be tested
+     * @return      <code>true</code> if <code>WordGraph</code> contains specified prefix
+     */
+    boolean isPrefix(String prefix);
+
+    /**
      * Returns the number of words in this WordGraph
      *
      * @return  the number of words in this WordGraph

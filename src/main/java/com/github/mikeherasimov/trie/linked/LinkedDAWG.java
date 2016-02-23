@@ -1,5 +1,6 @@
 package com.github.mikeherasimov.trie.linked;
 
+import com.github.mikeherasimov.trie.Alphabet;
 import com.github.mikeherasimov.trie.DAWG;
 
 /**
@@ -35,6 +36,15 @@ public final class LinkedDAWG implements DAWG {
         }
 
         /**
+         * Returns new Builder object, supported by specified Alphabet`s instance.
+         *
+         * @param alphabet  specified <code>Alphabet</code>`s instance
+         */
+        public Builder(Alphabet alphabet){
+            trie = new LinkedTrie(alphabet);
+        }
+
+        /**
          * Adds specified words to builder and returns it
          *
          * @param word  specified word
@@ -53,15 +63,18 @@ public final class LinkedDAWG implements DAWG {
          * @return  respective <code>LinkedDAWG</code> object
          */
         public LinkedDAWG build(){
-            LinkedDAWG linkedDAWG = (LinkedDAWG) LinkedTrie.toDAWG(trie);
-            trie = null;
-            return linkedDAWG;
+            return trie.toDAWG();
         }
     }
 
     @Override
     public boolean contains(String word) {
         return trie.contains(word);
+    }
+
+    @Override
+    public boolean isPrefix(String prefix) {
+        return trie.isPrefix(prefix);
     }
 
     @Override

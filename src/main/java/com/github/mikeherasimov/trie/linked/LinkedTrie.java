@@ -1,12 +1,16 @@
 package com.github.mikeherasimov.trie.linked;
 
+import com.github.mikeherasimov.trie.Alphabet;
 import com.github.mikeherasimov.trie.Optimizer;
 import com.github.mikeherasimov.trie.Trie;
 import gnu.trove.list.linked.TCharLinkedList;
 import gnu.trove.list.linked.TIntLinkedList;
 
-import java.io.*;
-
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Arrays;
 
 /**
  * LinkedTrie is one of realization of Trie interface.
@@ -18,10 +22,11 @@ public final class LinkedTrie implements Trie, Externalizable{
 
     private int size;
     private LinkedNode root;
-    private String alphabet = "abcdefghijklmnopqrstuvwxyz";
+    private char[] alphabet;
 
     /**
-     * Returns new LinkedTrie object, supported by english lowercase alphabet.
+     * Returns new LinkedTrie object, that can hold any <code>String</code>`s.
+     * More formally its alphabet contains all UTF characters.
      */
     public LinkedTrie(){
         root = new LinkedNode();
@@ -33,8 +38,18 @@ public final class LinkedTrie implements Trie, Externalizable{
      * @param alphabet  specified alphabet
      */
     public LinkedTrie(String alphabet) {
-        this.alphabet = alphabet;
+        this.alphabet = alphabet.toCharArray();
+        Arrays.sort(this.alphabet);
         root = new LinkedNode();
+    }
+
+    /**
+     * Returns new LinkedTrie object, supported by specified Alphabet`s instance.
+     *
+     * @param alphabet  specified <code>Alphabet</code>`s instance
+     */
+    public LinkedTrie(Alphabet alphabet) {
+        this(alphabet.characters());
     }
 
     /**
@@ -60,8 +75,13 @@ public final class LinkedTrie implements Trie, Externalizable{
      *                                   alphabet of this <code>ArrayTrie</code>
      */
     @Override
-    public void add(String word) throws IllegalArgumentException{
-        inspectWord(word);
+    public void add(String word) throws IllegalArgumentException {
+        try{
+            if(alphabet != null) inspectWord(word);
+        } catch (RuntimeException e){
+            e.printStackTrace();
+        }
+
 
         LinkedNode current = root;
         for (int i = 0, dest = word.length()-1; i < word.length(); i++){
@@ -115,18 +135,28 @@ public final class LinkedTrie implements Trie, Externalizable{
 
     @Override
     public boolean contains(String word) {
+        LinkedNode lastNode = searchNodeBySequence(word);
+        return lastNode != null && lastNode.getEOW();
+    }
+
+    @Override
+    public boolean isPrefix(String prefix) {
+        return searchNodeBySequence(prefix) != null;
+    }
+
+    private LinkedNode searchNodeBySequence(String sequence){
         LinkedNode current = root;
-        for (int i = 0; i < word.length(); i++) {
+        for (int i = 0; i < sequence.length(); i++) {
             if(current.getChild() == null) {
-                return false;
+                return null;
             }
-            LinkedNode temp = listScan(current.getChild(), word.charAt(i));
+            LinkedNode temp = listScan(current.getChild(), sequence.charAt(i));
             if(temp == null) {
-                return false;
+                return null;
             }
             current = temp;
         }
-        return current.getEOW();
+        return current;
     }
 
     @Override
@@ -134,9 +164,9 @@ public final class LinkedTrie implements Trie, Externalizable{
         return size;
     }
 
-    private void inspectWord(String word) throws IllegalArgumentException{
+    private void inspectWord(String word) {
         for (int i = 0; i < word.length(); i++){
-            if(alphabet.indexOf(word.charAt(i)) < 0)
+            if(Arrays.binarySearch(alphabet, word.charAt(i)) < 0)
                 throw new IllegalArgumentException("At least one letter of word is not supported by current alphabet");
         }
     }
@@ -187,7 +217,7 @@ public final class LinkedTrie implements Trie, Externalizable{
         if(!(obj instanceof LinkedTrie)) return false;
         LinkedTrie trie = (LinkedTrie) obj;
         return size == trie.size &&
-                alphabet.equals(trie.alphabet) && root.equals(trie.root);
+                Arrays.equals(alphabet, trie.alphabet) && root.equals(trie.root);
     }
 
     private static int recursiveCallsCount = -1;
@@ -246,14 +276,14 @@ public final class LinkedTrie implements Trie, Externalizable{
         preorderSerialize(list, root);
 
         out.writeInt(size);
-        out.writeUTF(alphabet);
+        out.writeObject(alphabet);
         out.writeObject(list.toArray());
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.size = in.readInt();
-        this.alphabet = in.readUTF();
+        this.alphabet = (char[]) in.readObject();
 
         char[] sequence = (char[]) in.readObject();
         this.root = preorderDeserialize(sequence);
