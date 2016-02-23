@@ -64,20 +64,24 @@ Number of nodes in ArrayDAWG is equal or smaller than number of nodes in LinkedD
 
 ### Version
 
-Version 2.2.0
+##### Version 2.2.1
+
+Builder of ArrayDAWG and Builder of LikedDAWG were removed
+
+##### Version 2.2.0
 
 Were introduced changes in project, such as:
 * interface Alphabet was added
 * was added enum CommonAlphabets that holds instances for english, ukrainian and russian Alphabet`s
 * method isPrefix() was added to interface WordGraph
 
-Version 2.1.0
+##### Version 2.1.0
 
 Were introduced changes in project, such as:
 * all classes relevant to ArrayTrie were placed in *array* package and the same was did for classes, which are relevant to LinkedTrie, so they migrated to *linked* package
 * Externalizable was implemented for ArrayTire and LinkedTrie classes
 
-Version 2.0.0
+##### Version 2.0.0
 
 Were introduced changes in project, such as:
 * tagged class Trie from version 1.0.0 was splitted to hierarchy of classes
@@ -107,7 +111,7 @@ Standart MIT license
 Dedicated to Maria Savschenko. You were a good pal, I miss you.
 
 ### Thanks
-
+##### Version 2.0.0 thanks
 Thanks to Xaver Kapeller for supporting me all this time, pointing to my mistakes, giving advices and helping with project's architecture.
 You are amazing man and developer ;)
 
