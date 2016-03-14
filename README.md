@@ -64,6 +64,11 @@ Number of nodes in ArrayDAWG is equal or smaller than number of nodes in LinkedD
 
 ### Version
 
+##### Version 2.2.2
+Changes in project:
+* SubtrieConverter interface were introduced
+* algorithms of converting Trie realizations to serializable form(converting Trie to array of chars)were placed in appropriate Node`s classes in purpose of making Trie realizations more lightweight
+
 ##### Version 2.2.1
 
 Builder of ArrayDAWG and Builder of LikedDAWG were removed
