@@ -1,7 +1,7 @@
 package com.github.mikeherasimov.trie.linked;
 
 import com.github.mikeherasimov.trie.Node;
-
+import gnu.trove.list.linked.TCharLinkedList;
 import java.util.Objects;
 
 final class LinkedNode implements Node {
@@ -108,5 +108,53 @@ final class LinkedNode implements Node {
 		return new LinkedNode(node.letter, node.EOW);
 	}
 
+	public char[] serializeSubtrie(){
+		TCharLinkedList charLinkedList = new TCharLinkedList();
+		preorderSerialize(charLinkedList, this);
+		return charLinkedList.toArray();
+	}
 
+	private void preorderSerialize(TCharLinkedList list, LinkedNode current){
+		if(current == null){
+			list.add(')');
+		} else {
+			list.add(current.letter);
+			if(current.getEOW()){
+				list.add('*');
+			}
+			preorderSerialize(list, current.child);
+			preorderSerialize(list, current.brother);
+		}
+	}
+
+	private static int recursiveCallsCount = -1;
+
+	public static LinkedNode deserializeSubtrie(char[] sequence){
+		LinkedNode rootOfSubtrie = preorderDeserialize(sequence);
+		recursiveCallsCount = -1;
+		return rootOfSubtrie;
+	}
+
+	private static LinkedNode preorderDeserialize(char[] sequence){
+		char letter = sequence[++recursiveCallsCount];
+		if(letter == ')'){
+			return null;
+		}
+		boolean EOW = false;
+		if(sequence[recursiveCallsCount + 1] == '*'){
+			recursiveCallsCount++;
+			EOW = true;
+		}
+
+		LinkedNode root = new LinkedNode(letter, EOW);
+		root.child = preorderDeserialize(sequence);
+		root.brother = preorderDeserialize(sequence);
+		return root;
+	}
+
+	public int numberOfNodesInSubtrie(){
+		int childCount = child == null ? 0 : child.numberOfNodesInSubtrie();
+		int brotherCount = getBrother() == null ? 0 : brother.numberOfNodesInSubtrie();
+		return 1 + childCount + brotherCount;
+	}
 }

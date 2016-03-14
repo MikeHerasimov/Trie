@@ -3,8 +3,6 @@ package com.github.mikeherasimov.trie.array;
 import com.github.mikeherasimov.trie.Alphabet;
 import com.github.mikeherasimov.trie.Optimizer;
 import com.github.mikeherasimov.trie.Trie;
-import gnu.trove.list.linked.TCharLinkedList;
-import gnu.trove.list.linked.TIntLinkedList;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -87,22 +85,12 @@ public final class ArrayTrie implements Trie, Externalizable{
     @Override
     public ArrayDAWG toDAWG() {
         ArrayTrie copy = new ArrayTrie(this);
-        return toDAWG(copy);
-    }
-
-    static ArrayDAWG toDAWG(ArrayTrie trie){
-        int nodeCount = ArrayOptimizerBehaviour.INSTANCE.countNodes(trie.root);
-        ArrayNode[] nodes = new ArrayNode[nodeCount];
-        int[] ancestors = new int[nodeCount];
-        TIntLinkedList leafs = new TIntLinkedList();
-
-        trie.getInfo(nodes, ancestors, leafs, trie.root, 0);
-        recursiveCallsCount = -1;
+        ArraySubtrieConverter subtrieConverter = new ArraySubtrieConverter(copy.root);
 
         Optimizer<ArrayNode> optimizer =
-                new Optimizer<>(ArrayOptimizerBehaviour.INSTANCE, nodes, ancestors, leafs.toArray());
+                new Optimizer<>(ArrayOptimizerBehaviour.INSTANCE, subtrieConverter);
         optimizer.eliminateDuplicates();
-        return new ArrayDAWG(trie);
+        return new ArrayDAWG(copy);
     }
 
     @Override
@@ -210,91 +198,18 @@ public final class ArrayTrie implements Trie, Externalizable{
                 Arrays.equals(alphabet, trie.alphabet) && root.equals(trie.root);
     }
 
-    private static int recursiveCallsCount = -1;
-    private void getInfo(ArrayNode[] nodes,
-                         int[] ancestors,
-                         TIntLinkedList leafs,
-                         ArrayNode current, int anc) {
-        recursiveCallsCount++;
-        nodes[recursiveCallsCount] = current;
-        ancestors[recursiveCallsCount] = anc;
-        int numberOfCurrentCall = recursiveCallsCount;
-
-        int nullCount = 0;
-        for (int i = 0; i < current.numberOfDescendants(); i++){
-            ArrayNode child = current.getChild(i);
-            if(child != null){
-                getInfo(nodes, ancestors, leafs, child, numberOfCurrentCall);
-            } else {
-                nullCount++;
-            }
-        }
-        if(nullCount == current.numberOfDescendants()){
-            leafs.add(recursiveCallsCount);
-        }
-    }
-
-    private void preorderSerialize(TCharLinkedList list, ArrayNode current){
-        list.add(current.getLetter());
-        if(current.getEOW()){
-            list.add('*');
-        }
-
-        int i = 0;
-        int lengthOfAlphabet = alphabet.length;
-        while (i < lengthOfAlphabet && current.getChild(i) == null){
-            i++;
-        }
-        if(i != lengthOfAlphabet){
-            list.add('{');
-            for ( ; i < lengthOfAlphabet; i++){
-                ArrayNode child = current.getChild(i);
-                if(child != null){
-                    list.add((char)i);
-                    preorderSerialize(list, child);
-                }
-            }
-            list.add('}');
-        }
-    }
-
-    private ArrayNode preorderDeserialize(char[] sequence, int lengthOfAlphabet){
-        char letter = sequence[++recursiveCallsCount];
-        boolean EOW = false;
-        if(sequence[recursiveCallsCount + 1] == '*'){
-            recursiveCallsCount++;
-            EOW = true;
-        }
-        ArrayNode root = new ArrayNode(letter, EOW, lengthOfAlphabet);
-
-        if(sequence[recursiveCallsCount + 1] == '{'){
-            recursiveCallsCount++;
-            do {
-                int pos = sequence[++recursiveCallsCount];
-                root.addChild(preorderDeserialize(sequence, lengthOfAlphabet), pos);
-            } while (sequence[recursiveCallsCount + 1] != '}');
-            recursiveCallsCount++;
-        }
-        return root;
-    }
-
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        TCharLinkedList list = new TCharLinkedList();
-        preorderSerialize(list, root);
-
         out.writeInt(size);
         out.writeObject(alphabet);
-        out.writeObject(list.toArray());
+        out.writeObject(root.serializeSubtrie());
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.size = in.readInt();
         this.alphabet = (char[]) in.readObject();
-
         char[] sequence = (char[]) in.readObject();
-        this.root = preorderDeserialize(sequence, alphabet.length);
-        recursiveCallsCount = -1;
+        this.root = ArrayNode.deserializeSubtrie(sequence, alphabet.length);
     }
 }

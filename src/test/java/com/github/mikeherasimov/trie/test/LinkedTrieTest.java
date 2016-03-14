@@ -1,7 +1,5 @@
 package com.github.mikeherasimov.trie.test;
 
-import com.github.mikeherasimov.trie.Alphabet;
-import com.github.mikeherasimov.trie.CommonAlphabets;
 import com.github.mikeherasimov.trie.DAWG;
 import com.github.mikeherasimov.trie.linked.LinkedTrie;
 import com.github.mikeherasimov.trie.Trie;
@@ -33,15 +31,11 @@ public class LinkedTrieTest {
 
     @Test
     public void testAdd() throws Exception {
-        /*trie.add("landscape");
+        trie.add("landscape");
         trie.add("land");
         trie.add("war");
         assertTrue(trie.size() == 3);
-        trie.add("wa*");*/
-
-        Trie testTrie = new LinkedTrie(CommonAlphabets.ENG);
-        testTrie.add("*");
-
+        trie.add("wa*");
     }
 
     @Test

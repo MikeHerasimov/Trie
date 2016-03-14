@@ -1,6 +1,7 @@
 package com.github.mikeherasimov.trie.array;
 
 import com.github.mikeherasimov.trie.Node;
+import gnu.trove.list.linked.TCharLinkedList;
 
 import java.util.Arrays;
 
@@ -92,5 +93,72 @@ final class ArrayNode implements Node {
                 node.children.length);
     }
 
+    public char[] serializeSubtrie(){
+        TCharLinkedList charLinkedList = new TCharLinkedList();
+        preorderSerialize(charLinkedList);
+        return charLinkedList.toArray();
+    }
 
+    private void preorderSerialize(TCharLinkedList list){
+        list.add(letter);
+        if(EOW){
+            list.add('*');
+        }
+
+        int i = 0;
+        int lengthOfAlphabet = children.length;
+        while (i < lengthOfAlphabet && children[i] == null){
+            i++;
+        }
+        if(i != lengthOfAlphabet){
+            list.add('{');
+            for ( ; i < lengthOfAlphabet; i++){
+                ArrayNode child = children[i];
+                if(child != null){
+                    list.add((char)i);
+                    child.preorderSerialize(list);
+                }
+            }
+            list.add('}');
+        }
+    }
+
+    private static int recursiveCallsCount = -1;
+
+    public static ArrayNode deserializeSubtrie(char[] sequence, int lengthOfAlphabet){
+        ArrayNode rootOfSubtrie = preorderDeserialize(sequence, lengthOfAlphabet);
+        recursiveCallsCount = -1;
+        return rootOfSubtrie;
+    }
+
+    private static ArrayNode preorderDeserialize(char[] sequence, int lengthOfAlphabet){
+        char letter = sequence[++recursiveCallsCount];
+        boolean EOW = false;
+        if(sequence[recursiveCallsCount + 1] == '*'){
+            recursiveCallsCount++;
+            EOW = true;
+        }
+        ArrayNode root = new ArrayNode(letter, EOW, lengthOfAlphabet);
+
+        if(sequence[recursiveCallsCount + 1] == '{'){
+            recursiveCallsCount++;
+            do {
+                int pos = sequence[++recursiveCallsCount];
+                root.addChild(preorderDeserialize(sequence, lengthOfAlphabet), pos);
+            } while (sequence[recursiveCallsCount + 1] != '}');
+            recursiveCallsCount++;
+        }
+        return root;
+    }
+
+    public int numberOfNodesInSubtrie(){
+        int count = 0;
+        for (int i = 0; i < numberOfDescendants(); i++){
+            ArrayNode child = children[i];
+            if(child != null){
+                count += child.numberOfNodesInSubtrie();
+            }
+        }
+        return 1 + count;
+    }
 }

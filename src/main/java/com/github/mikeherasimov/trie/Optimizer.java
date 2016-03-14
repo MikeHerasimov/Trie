@@ -35,6 +35,23 @@ public final class Optimizer <T extends Node>{
         this.leafs = leafs;
     }
 
+
+    /**
+     * Creates and returns new instance of Optimizer class.
+     * Supplied by: <p>
+     * One of optimizerBehaviour strategy interface realization, <p>
+     * Instance of SubtrieConverter interface.
+     *
+     * @param optimizerBehaviour  strategy interface realization
+     * @param subtrieConverter    instance of <code>SubtrieConverter</code> interface
+     */
+    public Optimizer(OptimizerBehaviour<T> optimizerBehaviour, SubtrieConverter<T> subtrieConverter){
+        this.optimizerBehaviour = optimizerBehaviour;
+        nodes = subtrieConverter.getNodes();
+        ancestors = subtrieConverter.getAncestorIndexes();
+        leafs = subtrieConverter.getLeafIndexes();
+    }
+
     /**
      * Makes search of duplicates and eliminates all but one,
      * using algorithms of supplied optimizerBehaviour implementation.

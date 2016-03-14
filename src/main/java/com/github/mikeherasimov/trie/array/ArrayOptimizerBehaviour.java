@@ -22,13 +22,6 @@ final class ArrayOptimizerBehaviour implements OptimizerBehaviour<ArrayNode> {
 
     @Override
     public int countNodes(ArrayNode current) {
-        int count = 0;
-        for (int i = 0; i < current.numberOfDescendants(); i++){
-            ArrayNode child = current.getChild(i);
-            if(child != null){
-                count += countNodes(child);
-            }
-        }
-        return 1 + count;
+        return current.numberOfNodesInSubtrie();
     }
 }

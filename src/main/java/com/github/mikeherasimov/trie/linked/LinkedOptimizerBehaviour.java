@@ -24,8 +24,6 @@ final class LinkedOptimizerBehaviour implements OptimizerBehaviour<LinkedNode> {
 
     @Override
     public int countNodes(LinkedNode current) {
-        int child = current.getChild() == null ? 0 : countNodes(current.getChild());
-        int brother = current.getBrother() == null ? 0 : countNodes(current.getBrother());
-        return 1 + child + brother;
+        return current.numberOfNodesInSubtrie();
     }
 }

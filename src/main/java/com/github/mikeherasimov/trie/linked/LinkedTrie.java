@@ -1,16 +1,12 @@
 package com.github.mikeherasimov.trie.linked;
 
-import com.github.mikeherasimov.trie.Alphabet;
 import com.github.mikeherasimov.trie.Optimizer;
 import com.github.mikeherasimov.trie.Trie;
-import gnu.trove.list.linked.TCharLinkedList;
-import gnu.trove.list.linked.TIntLinkedList;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
 
 /**
  * LinkedTrie is one of realization of Trie interface.
@@ -22,7 +18,6 @@ public final class LinkedTrie implements Trie, Externalizable{
 
     private int size;
     private LinkedNode root;
-    private char[] alphabet;
 
     /**
      * Returns new LinkedTrie object, that can hold any <code>String</code>`s.
@@ -30,26 +25,6 @@ public final class LinkedTrie implements Trie, Externalizable{
      */
     public LinkedTrie(){
         root = new LinkedNode();
-    }
-
-    /**
-     * Returns new LinkedTrie object, supported by specified alphabet.
-     *
-     * @param alphabet  specified alphabet
-     */
-    public LinkedTrie(String alphabet) {
-        this.alphabet = alphabet.toCharArray();
-        Arrays.sort(this.alphabet);
-        root = new LinkedNode();
-    }
-
-    /**
-     * Returns new LinkedTrie object, supported by specified Alphabet`s instance.
-     *
-     * @param alphabet  specified <code>Alphabet</code>`s instance
-     */
-    public LinkedTrie(Alphabet alphabet) {
-        this(alphabet.characters());
     }
 
     /**
@@ -64,7 +39,6 @@ public final class LinkedTrie implements Trie, Externalizable{
     public LinkedTrie(LinkedTrie trie){
         size = trie.size;
         root = LinkedNode.newInstance(trie.root);
-        alphabet = trie.alphabet;
     }
 
     /**
@@ -76,13 +50,6 @@ public final class LinkedTrie implements Trie, Externalizable{
      */
     @Override
     public void add(String word) throws IllegalArgumentException {
-        try{
-            if(alphabet != null) inspectWord(word);
-        } catch (RuntimeException e){
-            e.printStackTrace();
-        }
-
-
         LinkedNode current = root;
         for (int i = 0, dest = word.length()-1; i < word.length(); i++){
             current = createNodeIfNeeds(current, word.charAt(i),
@@ -104,22 +71,12 @@ public final class LinkedTrie implements Trie, Externalizable{
     @Override
     public LinkedDAWG toDAWG() {
         LinkedTrie copy = new LinkedTrie(this);
-        return toDAWG(copy);
-    }
-
-    static LinkedDAWG toDAWG(LinkedTrie trie){
-        int nodeCount = LinkedOptimizerBehaviour.INSTANCE.countNodes(trie.root);
-        LinkedNode[] nodes = new LinkedNode[nodeCount];
-        int[] ancestors = new int[nodeCount];
-        TIntLinkedList leafs = new TIntLinkedList();
-
-        trie.getInfo(nodes, ancestors, leafs, trie.root, 0);
-        recursiveCallsCount = -1;
+        LinkedSubtrieConverter subtrieConverter = new LinkedSubtrieConverter(copy.root);
 
         Optimizer<LinkedNode> optimizer =
-                new Optimizer<>(LinkedOptimizerBehaviour.INSTANCE, nodes, ancestors, leafs.toArray());
+                new Optimizer<>(LinkedOptimizerBehaviour.INSTANCE, subtrieConverter);
         optimizer.eliminateDuplicates();
-        return new LinkedDAWG(trie);
+        return new LinkedDAWG(copy);
     }
 
     @Override
@@ -162,13 +119,6 @@ public final class LinkedTrie implements Trie, Externalizable{
     @Override
     public int size() {
         return size;
-    }
-
-    private void inspectWord(String word) {
-        for (int i = 0; i < word.length(); i++){
-            if(Arrays.binarySearch(alphabet, word.charAt(i)) < 0)
-                throw new IllegalArgumentException("At least one letter of word is not supported by current alphabet");
-        }
     }
 
     private LinkedNode createNodeIfNeeds(LinkedNode ancestor, char letter, boolean EOW){
@@ -216,77 +166,19 @@ public final class LinkedTrie implements Trie, Externalizable{
         if(obj == this) return true;
         if(!(obj instanceof LinkedTrie)) return false;
         LinkedTrie trie = (LinkedTrie) obj;
-        return size == trie.size &&
-                Arrays.equals(alphabet, trie.alphabet) && root.equals(trie.root);
-    }
-
-    private static int recursiveCallsCount = -1;
-    private void getInfo(LinkedNode[] nodes,
-                         int[] ancestors,
-                         TIntLinkedList leafs,
-                         LinkedNode current, int anc) {
-        recursiveCallsCount++;
-        nodes[recursiveCallsCount] = current;
-        ancestors[recursiveCallsCount] = anc;
-
-        if(current.getChild() != null){
-            getInfo(nodes, ancestors, leafs, current.getChild(), recursiveCallsCount);
-        } else {
-            leafs.add(recursiveCallsCount);
-        }
-
-        if(current.getBrother() != null){
-            getInfo(nodes, ancestors, leafs, current.getBrother(), anc);
-        }
-    }
-
-    private void preorderSerialize(TCharLinkedList list, LinkedNode current){
-        if(current == null){
-            list.add(')');
-        } else {
-            list.add(current.getLetter());
-            if(current.getEOW()){
-                list.add('*');
-            }
-            preorderSerialize(list, current.getChild());
-            preorderSerialize(list, current.getBrother());
-        }
-    }
-
-    private LinkedNode preorderDeserialize(char[] sequence){
-        char letter = sequence[++recursiveCallsCount];
-        if(letter == ')'){
-            return null;
-        }
-        boolean EOW = false;
-        if(sequence[recursiveCallsCount + 1] == '*'){
-            recursiveCallsCount++;
-            EOW = true;
-        }
-
-        LinkedNode root = new LinkedNode(letter, EOW);
-        root.setChild(preorderDeserialize(sequence));
-        root.setBrother(preorderDeserialize(sequence));
-        return root;
+        return size == trie.size && root.equals(trie.root);
     }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        TCharLinkedList list = new TCharLinkedList();
-        preorderSerialize(list, root);
-
         out.writeInt(size);
-        out.writeObject(alphabet);
-        out.writeObject(list.toArray());
+        out.writeObject(root.serializeSubtrie());
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.size = in.readInt();
-        this.alphabet = (char[]) in.readObject();
-
         char[] sequence = (char[]) in.readObject();
-        this.root = preorderDeserialize(sequence);
-        recursiveCallsCount = -1;
+        this.root = LinkedNode.deserializeSubtrie(sequence);
     }
 }
