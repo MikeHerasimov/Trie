@@ -64,6 +64,11 @@ Number of nodes in ArrayDAWG is equal or smaller than number of nodes in LinkedD
 
 ### Version
 
+##### Version 2.3.0
+Changes in project:
+* Array realization with all relevant to it classes was deleted because of low performance
+* LinkedDAWG implements Externalizable, so it can be easily serialized/deserialized.
+
 ##### Version 2.2.2
 Changes in project:
 * SubtrieConverter interface were introduced
