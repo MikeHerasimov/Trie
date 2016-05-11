@@ -3,7 +3,7 @@ package com.github.mikeherasimov.trie.linked;
 import com.github.mikeherasimov.trie.SubtrieConverter;
 import gnu.trove.list.linked.TIntLinkedList;
 
-final class LinkedSubtrieConverter implements SubtrieConverter<LinkedNode>{
+class LinkedSubtrieConverter implements SubtrieConverter<LinkedNode>{
     private static int recursiveCallsCount = -1;
 
     private final LinkedNode root;

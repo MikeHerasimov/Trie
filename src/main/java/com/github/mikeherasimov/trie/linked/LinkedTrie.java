@@ -41,6 +41,11 @@ public final class LinkedTrie implements Trie, Externalizable{
         root = LinkedNode.newInstance(trie.root);
     }
 
+    LinkedTrie(int size, LinkedNode root) {
+        this.size = size;
+        this.root = root;
+    }
+
     /**
      * Appends specified word to this LinkedTrie.
      *
@@ -180,5 +185,9 @@ public final class LinkedTrie implements Trie, Externalizable{
         this.size = in.readInt();
         char[] sequence = (char[]) in.readObject();
         this.root = LinkedNode.deserializeSubtrie(sequence);
+    }
+
+    LinkedDAWGSerializationHelper getDAWGSerializationHelper(){
+        return new LinkedDAWGSerializationHelper(root);
     }
 }

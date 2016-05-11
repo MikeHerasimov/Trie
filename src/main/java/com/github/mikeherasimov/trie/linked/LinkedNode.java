@@ -2,9 +2,13 @@ package com.github.mikeherasimov.trie.linked;
 
 import com.github.mikeherasimov.trie.Node;
 import gnu.trove.list.linked.TCharLinkedList;
+import gnu.trove.map.custom_hash.TObjectIntCustomHashMap;
+import gnu.trove.strategy.IdentityHashingStrategy;
+
+import java.util.IdentityHashMap;
 import java.util.Objects;
 
-final class LinkedNode implements Node {
+class LinkedNode implements Node {
 	
 	private boolean EOW;
 	private char letter;
@@ -157,4 +161,5 @@ final class LinkedNode implements Node {
 		int brotherCount = getBrother() == null ? 0 : brother.numberOfNodesInSubtrie();
 		return 1 + childCount + brotherCount;
 	}
+
 }
